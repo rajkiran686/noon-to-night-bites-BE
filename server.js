@@ -6,9 +6,27 @@ import offerRoutes from './routes/offerRoutes.js';
 
 const app = express();
 
-// Middleware
-app.use(cors({ origin: '*' })); // or your frontend URL if you want restriction
-app.use(express.json()); // built-in JSON parser
+// ✅ Allow only your Vercel frontend
+const allowedOrigins = [
+  'https://noon-to-night-bites.vercel.app',
+  'http://localhost:3000' // optional, for local dev
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true, // if you use cookies or auth headers
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  })
+);
+
+app.use(express.json());
 
 // Routes
 app.use('/api/menu', menuRoutes);

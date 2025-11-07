@@ -1,15 +1,19 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import menuRoutes from './routes/menuRoutes.js';
 import offerRoutes from './routes/offerRoutes.js';
 
+// Load environment variables
+dotenv.config();
+
 const app = express();
 
-// ✅ Allow only your Vercel frontend
+// ✅ Allowed origins
 const allowedOrigins = [
   'https://noon-to-night-bites.vercel.app',
-  'http://localhost:3000' // optional, for local dev
+  'http://localhost:8080' // optional for local dev
 ];
 
 app.use(
@@ -21,22 +25,24 @@ app.use(
         callback(new Error('Not allowed by CORS'));
       }
     },
-    credentials: true, // if you use cookies or auth headers
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
   })
 );
 
 app.use(express.json());
 
-// Routes
+// ✅ Routes
 app.use('/api/menu', menuRoutes);
 app.use('/api/offers', offerRoutes);
 
-// MongoDB connection
+
+// ✅ MongoDB connection
 mongoose
-  .connect('mongodb+srv://gutturthirajkiran143:Raj123@cluster.n17eyrp.mongodb.net/mama-biryani?retryWrites=true&w=majority')
+  .connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch((err) => console.error('❌ MongoDB connection error:', err));
 
+// ✅ Server start
 const PORT = process.env.PORT || 1234;
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
